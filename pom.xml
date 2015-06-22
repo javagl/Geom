@@ -10,7 +10,7 @@
 
     <groupId>de.javagl</groupId>
     <artifactId>geom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <name>geom</name>
     <description>Utility classes for geometry computations</description>
