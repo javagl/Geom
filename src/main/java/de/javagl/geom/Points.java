@@ -113,7 +113,7 @@ public class Points
     public static Comparator<Point2D> byAngleComparator(
         Point2D center)
     {
-    	return byAngleComparator(center.getX(),  center.getY());
+        return byAngleComparator(center.getX(),  center.getY());
     }
     
     /**
@@ -132,11 +132,11 @@ public class Points
             @Override
             public int compare(Point2D p0, Point2D p1)
             {
-            	double angle0 = Lines.angleToX(
-                	centerX, centerY, p0.getX(), p0.getY());
-            	double angle1 = Lines.angleToX(
-                	centerX, centerY, p1.getX(), p1.getY());
-            	//System.out.println("Angle "+angle0+" and "+angle1);
+                double angle0 = Lines.angleToX(
+                    centerX, centerY, p0.getX(), p0.getY());
+                double angle1 = Lines.angleToX(
+                    centerX, centerY, p1.getX(), p1.getY());
+                //System.out.println("Angle "+angle0+" and "+angle1);
                 return Double.compare(angle0, angle1);
             }
         };
@@ -361,43 +361,43 @@ public class Points
      * @param points The input points
      * @return The transformed points
      */
-	public static List<Point2D> transform(
-		AffineTransform at,	Iterable<? extends Point2D> points)
-	{
-		List<Point2D> result = new ArrayList<Point2D>();
-		for (Point2D p : points)
-		{
-			Point2D tp = at.transform(p, null);
-			result.add(tp);
-		}
-		return result;
-	}
+    public static List<Point2D> transform(
+        AffineTransform at, Iterable<? extends Point2D> points)
+    {
+        List<Point2D> result = new ArrayList<Point2D>();
+        for (Point2D p : points)
+        {
+            Point2D tp = at.transform(p, null);
+            result.add(tp);
+        }
+        return result;
+    }
     
     
-	/**
-	 * Compute the bounding box of the given points
-	 * 
-	 * @param points The input points
-	 * @return The bounding box of the given points
-	 */
-	public static Rectangle2D computeBounds(
-		Iterable<? extends Point2D> points)
-	{
-		double minX = Double.MAX_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxX = -Double.MAX_VALUE;
-		double maxY = -Double.MAX_VALUE;
-		for (Point2D p : points)
-		{
-			double x = p.getX();
-			double y = p.getY();
-			minX = Math.min(minX, x);
-			minY = Math.min(minY, y);
-			maxX = Math.max(maxX, x);
-			maxY = Math.max(maxY, y);
-		}
-		return new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
-	}
+    /**
+     * Compute the bounding box of the given points
+     * 
+     * @param points The input points
+     * @return The bounding box of the given points
+     */
+    public static Rectangle2D computeBounds(
+        Iterable<? extends Point2D> points)
+    {
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE;
+        double maxY = -Double.MAX_VALUE;
+        for (Point2D p : points)
+        {
+            double x = p.getX();
+            double y = p.getY();
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        return new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
+    }
 
     /**
      * Creates a short string representation of the given point

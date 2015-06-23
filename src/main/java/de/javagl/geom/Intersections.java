@@ -70,7 +70,7 @@ public class Intersections
                 line1.getX2(), line1.getY2(),
                 relativeLocation, absoluteLocation);
         }
-    	
+        
         /**
          * Computes the intersection of the specified line segments.
          * 
@@ -134,7 +134,7 @@ public class Intersections
      */
     public static class LineLine
     {
-    	
+        
         /**
          * Computes the intersection of the given lines.
          * 
@@ -159,7 +159,7 @@ public class Intersections
                 line1.getX2(), line1.getY2(),
                 relativeLocation, absoluteLocation);
         }
-    	
+        
         /**
          * Computes the intersection of the specified lines.
          * 
@@ -215,7 +215,7 @@ public class Intersections
             
                     double cdx = c1x - c0x;
                     double cdy = c1y - c0y;
-                	
+                    
                     double dot0 = dotPerp(cdx, cdy, dir0x, dir0y);
                     double dot1 = dotPerp(cdx, cdy, dir1x, dir1y);
                     double invDot = 1.0/dot;

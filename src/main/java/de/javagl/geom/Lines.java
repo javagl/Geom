@@ -172,7 +172,7 @@ public class Lines
      * @return The destination line
      */
     public static Line2D rotate(
-    	double angleRad, Line2D lineSrc, Line2D lineDst)
+        double angleRad, Line2D lineSrc, Line2D lineDst)
     {
         double x0 = lineSrc.getX1();
         double y0 = lineSrc.getY1();
@@ -186,7 +186,7 @@ public class Lines
         double ny = sa * dx + ca * dy;
         if (lineDst == null)
         {
-        	lineDst = new Line2D.Double();
+            lineDst = new Line2D.Double();
         }
         lineDst.setLine(x0, y0, x0+nx, y0+ny);
         return lineDst;
@@ -202,7 +202,7 @@ public class Lines
      */
     public static double angle(Line2D line0, Line2D line1)
     {
-    	return angleToX(line1) - angleToX(line0);
+        return angleToX(line1) - angleToX(line0);
     }
     
     /**
@@ -214,9 +214,9 @@ public class Lines
      */
     public static double angleToX(Line2D line)
     {
-    	return angleToX(
-    	    line.getX1(), line.getY1(), 
-    	    line.getX2(), line.getY2());
+        return angleToX(
+            line.getX1(), line.getY1(), 
+            line.getX2(), line.getY2());
     }
 
 
@@ -229,11 +229,11 @@ public class Lines
      * @return The angle, in radians, that the line has to the x-axis
      */
     public static double angleToX(
-   		Point2D p0, Point2D p1)
+           Point2D p0, Point2D p1)
     {
-    	return angleToX(
-    	    p0.getX(), p0.getY(), 
-    	    p1.getX(), p1.getY());
+        return angleToX(
+            p0.getX(), p0.getY(), 
+            p1.getX(), p1.getY());
     }
 
     /**
@@ -247,9 +247,9 @@ public class Lines
      * @return The angle, in radians, that the line has to the x-axis
      */
     public static double angleToX(
-   		double x0, double y0, double x1, double y1)
+           double x0, double y0, double x1, double y1)
     {
-    	double dx = x1 - x0;
+        double dx = x1 - x0;
         double dy = y1 - y0;
         double angleRad = Math.atan2(dy, dx); 
         return angleRad;

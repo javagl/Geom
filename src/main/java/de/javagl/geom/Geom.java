@@ -37,12 +37,12 @@ class Geom
     static final double DOUBLE_EPSILON = 1e-8f;
 
     
-	/**
-	 * Private constructor to prevent instantiation
-	 */
-	private Geom()
-	{
-		// Private constructor to prevent instantiation
-	}
+    /**
+     * Private constructor to prevent instantiation
+     */
+    private Geom()
+    {
+        // Private constructor to prevent instantiation
+    }
 
 }

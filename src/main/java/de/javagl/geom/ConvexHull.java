@@ -38,126 +38,126 @@ import java.util.List;
  */
 public class ConvexHull 
 {
-	
-	/**
-	 * Compute the list of points that form the convex hull of the given
-	 * input points. If there are less than 4 input points, a list 
-	 * containing the input points will be returned (regardless of
-	 * whether these points are degenerate, i.e. even when they are
-	 * on one line or at the same location)
-	 * 
-	 * @param inputPoints The input points
-	 * @return The convex hull points
-	 */
-	public static List<Point2D> compute(List<? extends Point2D> inputPoints)
-	{
-		if (inputPoints.size() <= 3)
-		{
-			return new ArrayList<Point2D>(inputPoints);
-		}
-		List<Point2D> points = new ArrayList<Point2D>(inputPoints);
-		
-		// Compute the reference point and sort the points
-		// by the angle that the line from the reference point 
-		// to the point has to the x-axis
+    
+    /**
+     * Compute the list of points that form the convex hull of the given
+     * input points. If there are less than 4 input points, a list 
+     * containing the input points will be returned (regardless of
+     * whether these points are degenerate, i.e. even when they are
+     * on one line or at the same location)
+     * 
+     * @param inputPoints The input points
+     * @return The convex hull points
+     */
+    public static List<Point2D> compute(List<? extends Point2D> inputPoints)
+    {
+        if (inputPoints.size() <= 3)
+        {
+            return new ArrayList<Point2D>(inputPoints);
+        }
+        List<Point2D> points = new ArrayList<Point2D>(inputPoints);
+        
+        // Compute the reference point and sort the points
+        // by the angle that the line from the reference point 
+        // to the point has to the x-axis
         Point2D referencePoint = Collections.min(points, Points.YX_COMPARATOR);
-		Comparator<Point2D> comparator = 
-			Points.byAngleComparator(referencePoint);
-		Collections.sort(points, comparator);
-		
-		List<Point2D> newPoints = makeAnglesUnique(points);
-		List<Point2D> result = scan(newPoints);
-		return result;
-	}
-	
-	
-	/**
-	 * Perform the actual Graham Scan on the given points
-	 * 
-	 * @param points The input points
-	 * @return The points of the convex hull
-	 */
-	private static List<Point2D> scan(List<Point2D> points)
-	{
-		List<Point2D> result = new ArrayList<Point2D>();
-		result.add(points.get(0));
-		result.add(points.get(1));
-		for (int i=2; i<points.size(); i++)
-		{
-			Point2D p0 = result.get(result.size()-1);
-			Point2D p1 = result.get(result.size()-2);
-			Point2D p = points.get(i);
-			
-			double x0 = p0.getX();
-			double y0 = p0.getY();
-			double x1 = p1.getX();
-			double y1 = p1.getY();
-			double x = p.getX();
-			double y = p.getY();
-			int r = Line2D.relativeCCW(x0, y0, x1, y1, x, y);
-			//System.out.println("relative "+r+" for "+p0+" "+p1+" "+p);
-			// A check for r>0 should be sufficient, but
-			// may cause problems for equal points. So
-			// doing the conservative r>=0 check here.
-			if (r >= 0)
-			{
-				result.add(p);
-			}
-			else
-			{
-				result.remove(result.size()-1);
-				i--;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Given the sorted list of points, with point 0 being the reference
-	 * point: Create a list containing the points that have a unique
-	 * angle referring to the reference point. When two points have
-	 * the same angle, then the point that is further away from the
-	 * reference point will be kept.
-	 * 
-	 * @param points The input points
-	 * @return The points with unique angles
-	 */
-	private static List<Point2D> makeAnglesUnique(List<Point2D> points)
-	{
-		Point2D referencePoint = points.get(0);
-		List<Point2D> newPoints = new ArrayList<Point2D>();
-		newPoints.add(referencePoint);
-		double previousAngle = Math.PI * 2;
-		double previousDistanceSquared = Double.MAX_VALUE;
-		for (int i=1; i<points.size(); i++)
-		{
-			Point2D p = points.get(i);
-			double angle = Lines.angleToX(referencePoint, p);
-			//System.out.println("Angle is "+Math.toDegrees(angle)+" for "+p);
-			if (Math.abs(angle - previousAngle) > Geom.DOUBLE_EPSILON)
-			{
-				newPoints.add(p);
-			}
-			else
-			{
-				double distanceSquared = referencePoint.distanceSq(p);
-				if (distanceSquared > previousDistanceSquared)
-				{
-					newPoints.set(newPoints.size()-1, p);
-				}
-			}
-			previousAngle = angle;
-			previousDistanceSquared = referencePoint.distanceSq(p);
-		}
-		return newPoints;
-	}
-	
-	/**
-	 * Private constructor to prevent instantiation
-	 */
-	private ConvexHull()
-	{
-		// Private constructor to prevent instantiation
-	}
+        Comparator<Point2D> comparator = 
+            Points.byAngleComparator(referencePoint);
+        Collections.sort(points, comparator);
+        
+        List<Point2D> newPoints = makeAnglesUnique(points);
+        List<Point2D> result = scan(newPoints);
+        return result;
+    }
+    
+    
+    /**
+     * Perform the actual Graham Scan on the given points
+     * 
+     * @param points The input points
+     * @return The points of the convex hull
+     */
+    private static List<Point2D> scan(List<Point2D> points)
+    {
+        List<Point2D> result = new ArrayList<Point2D>();
+        result.add(points.get(0));
+        result.add(points.get(1));
+        for (int i=2; i<points.size(); i++)
+        {
+            Point2D p0 = result.get(result.size()-1);
+            Point2D p1 = result.get(result.size()-2);
+            Point2D p = points.get(i);
+            
+            double x0 = p0.getX();
+            double y0 = p0.getY();
+            double x1 = p1.getX();
+            double y1 = p1.getY();
+            double x = p.getX();
+            double y = p.getY();
+            int r = Line2D.relativeCCW(x0, y0, x1, y1, x, y);
+            //System.out.println("relative "+r+" for "+p0+" "+p1+" "+p);
+            // A check for r>0 should be sufficient, but
+            // may cause problems for equal points. So
+            // doing the conservative r>=0 check here.
+            if (r >= 0)
+            {
+                result.add(p);
+            }
+            else
+            {
+                result.remove(result.size()-1);
+                i--;
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Given the sorted list of points, with point 0 being the reference
+     * point: Create a list containing the points that have a unique
+     * angle referring to the reference point. When two points have
+     * the same angle, then the point that is further away from the
+     * reference point will be kept.
+     * 
+     * @param points The input points
+     * @return The points with unique angles
+     */
+    private static List<Point2D> makeAnglesUnique(List<Point2D> points)
+    {
+        Point2D referencePoint = points.get(0);
+        List<Point2D> newPoints = new ArrayList<Point2D>();
+        newPoints.add(referencePoint);
+        double previousAngle = Math.PI * 2;
+        double previousDistanceSquared = Double.MAX_VALUE;
+        for (int i=1; i<points.size(); i++)
+        {
+            Point2D p = points.get(i);
+            double angle = Lines.angleToX(referencePoint, p);
+            //System.out.println("Angle is "+Math.toDegrees(angle)+" for "+p);
+            if (Math.abs(angle - previousAngle) > Geom.DOUBLE_EPSILON)
+            {
+                newPoints.add(p);
+            }
+            else
+            {
+                double distanceSquared = referencePoint.distanceSq(p);
+                if (distanceSquared > previousDistanceSquared)
+                {
+                    newPoints.set(newPoints.size()-1, p);
+                }
+            }
+            previousAngle = angle;
+            previousDistanceSquared = referencePoint.distanceSq(p);
+        }
+        return newPoints;
+    }
+    
+    /**
+     * Private constructor to prevent instantiation
+     */
+    private ConvexHull()
+    {
+        // Private constructor to prevent instantiation
+    }
 
 }
