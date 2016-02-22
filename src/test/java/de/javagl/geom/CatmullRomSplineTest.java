@@ -3,6 +3,8 @@ package de.javagl.geom;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -11,6 +13,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -53,7 +56,7 @@ class CatmullRomSplineTestPanel extends JPanel
     implements MouseListener, MouseMotionListener
 {
     private final List<Point2D> pointList;
-    private final CatmullRomSpline spline;
+    private CatmullRomSpline spline;
     private Point2D draggedPoint;
     private int draggedPointIndex;
     private JSlider slider;
@@ -68,8 +71,7 @@ class CatmullRomSplineTestPanel extends JPanel
         pointList.add(new Point2D.Double(433,567));
         pointList.add(new Point2D.Double(476,635));
 
-        spline = 
-            CatmullRomSpline.create(pointList, 20, 0.0);
+        spline = CatmullRomSpline.create(pointList, 20, 0.0);
         
         slider = new JSlider(0, 100, 0);
         slider.addChangeListener(new ChangeListener()
@@ -83,6 +85,19 @@ class CatmullRomSplineTestPanel extends JPanel
             }
         });
         add(slider);
+        
+        final JCheckBox checkBox = new JCheckBox("Closed?");
+        checkBox.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                boolean closed = checkBox.isSelected();
+                spline = CatmullRomSpline.create(pointList, 20, 0.0, closed);
+                repaint();
+            }
+        });
+        add(checkBox);
         
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -115,9 +130,10 @@ class CatmullRomSplineTestPanel extends JPanel
             
             repaint();
             
+            System.out.println("Points: ");
             for (Point2D p : pointList)
             {
-                System.out.println(p);
+                System.out.println("    "+p);
             }
         }
     }

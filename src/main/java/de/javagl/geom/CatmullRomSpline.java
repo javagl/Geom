@@ -1,7 +1,7 @@
 /*
  * www.javagl.de - Geom - Geometry utilities
  *
- * Copyright (c) 2013-2015 Marco Hutter - http://www.javagl.de
+ * Copyright (c) 2013-2016 Marco Hutter - http://www.javagl.de
  * 
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -55,9 +55,29 @@ public class CatmullRomSpline
     public static CatmullRomSpline create(
         List<? extends Point2D> points, int stepsPerSegment, double alpha)
     {
-        return new CatmullRomSpline(points, stepsPerSegment, alpha);
+        return create(points, stepsPerSegment, alpha, false);
     }
 
+    /**
+     * Creates a new Catmull-Rom-Spline with the given control points. 
+     * 
+     * @param points The control points. A deep copy of the given list
+     * will be created internally. Thus, changes in the given list or
+     * its points will not be reflected in this spline.
+     * @param stepsPerSegment The number of interpolation steps per segment
+     * @param alpha The interpolation value. For 0.0, the
+     * spline is uniform. For 0.5, the spline is centripetal. For
+     * 1.0, the spline is chordal.
+     * @param closed Whether the spline should be closed
+     * @return The spline
+     */
+    public static CatmullRomSpline create(
+        List<? extends Point2D> points, int stepsPerSegment, 
+        double alpha, boolean closed)
+    {
+        return new CatmullRomSpline(points, stepsPerSegment, alpha, closed);
+    }
+    
     
     /**
      * The alpha value determining the interpolation: For 0.0, the
@@ -92,6 +112,11 @@ public class CatmullRomSpline
     private boolean updateRequired = true;
     
     /**
+     * Whether this spline is closed
+     */
+    private final boolean closed;
+    
+    /**
      * Creates a new Catmull-Rom-Spline with the given points. 
      * 
      * @param points The control points. A deep copy of the given list
@@ -101,16 +126,28 @@ public class CatmullRomSpline
      * @param alpha The interpolation value. For 0.0, the
      * spline is uniform. For 0.5, the spline is centripetal. For
      * 1.0, the spline is chordal.
+     * @param closed Whether the spline should by closed
      */
     private CatmullRomSpline(
-        List<? extends Point2D> points, int stepsPerSegment, double alpha)
+        List<? extends Point2D> points, 
+        int stepsPerSegment, double alpha, boolean closed)
     {
         this.stepsPerSegment = stepsPerSegment;
         this.alpha = alpha;
-        controlPoints = createPoints(points.size()+2);            
-        int numInterpolatedPoints = 
-            (points.size()-1) * stepsPerSegment + 1;
-        interpolatedPoints = createPoints(numInterpolatedPoints);
+        int numInterpolatedPoints = (points.size() - 1) * stepsPerSegment + 1;
+        if (closed)
+        {
+            numInterpolatedPoints += stepsPerSegment;
+            this.controlPoints = createPoints(points.size() + 3);
+            this.controlPoints.set(1,
+                controlPoints.get(controlPoints.size() - 2));
+        }
+        else
+        {
+            this.controlPoints = createPoints(points.size() + 2);
+        }
+        this.interpolatedPoints = createPoints(numInterpolatedPoints);
+        this.closed = closed;
         updateControlPoints(points);
     }
 
@@ -152,6 +189,7 @@ public class CatmullRomSpline
      */
     void updateControlPoint(int index, Point2D point)
     {
+        int numPoints = controlPoints.size() - (closed ? 3 : 2);
         if (index < 0)
         {
             throw new IndexOutOfBoundsException(
@@ -161,7 +199,7 @@ public class CatmullRomSpline
         {
             throw new IndexOutOfBoundsException(
                 "Index was "+index+", but number of control " + 
-                "points was "+(controlPoints.size()-2));
+                "points was "+numPoints);
         }
         Point2D cp = controlPoints.get(index+1);
         cp.setLocation(point);
@@ -182,10 +220,11 @@ public class CatmullRomSpline
      */
     public void updateControlPoints(List<? extends Point2D> points)
     {
-        if (points.size() != controlPoints.size() - 2)
+        int numPoints = controlPoints.size() - (closed ? 3 : 2);
+        if (points.size() != numPoints)
         {
             throw new IllegalArgumentException(
-                "Expected "+(controlPoints.size()-2)+
+                "Expected "+numPoints+
                 " points, but got "+points.size());
         }
         for (int j=0; j<points.size(); j++)
@@ -234,17 +273,18 @@ public class CatmullRomSpline
      */
     private void updateInterpolatedPoints()
     {
-        for (int i=0; i<controlPoints.size()-3; i++)
+        int numPoints = controlPoints.size() - 2;
+        for (int i=0; i<numPoints - 1; i++)
         {
             int stepsInCurrentSegment = stepsPerSegment;
-            int lastStepinSegment = stepsInCurrentSegment;
-            if (i == controlPoints.size()-4)
+            int lastStepInSegment = stepsInCurrentSegment;
+            if (i == numPoints - 2)
             {
                 stepsInCurrentSegment++;
-                lastStepinSegment = stepsInCurrentSegment-1;
+                lastStepInSegment = stepsInCurrentSegment-1;
             }
             updateInterpolatedPoints(
-                i, stepsInCurrentSegment, lastStepinSegment);
+                i, stepsInCurrentSegment, lastStepInSegment);
         }
     }
     
@@ -254,17 +294,31 @@ public class CatmullRomSpline
      */
     private void updateAdditionalControlPoints()
     {
-        Point2D p0 = controlPoints.get(1);
-        Point2D p1 = controlPoints.get(2);
-        Point2D cp0 = controlPoints.get(0);
-        sub(p1, p0, cp0);
-        sub(p0, cp0, cp0);
+        if (closed)
+        {
+            Point2D py = controlPoints.get(controlPoints.size()-3);
+            Point2D cp0 = controlPoints.get(0);
+            cp0.setLocation(py);
+            
+            Point2D p1 = controlPoints.get(2);
+            Point2D cpz = controlPoints.get(controlPoints.size()-1);
+            cpz.setLocation(p1);
+        }
+        else
+        {
+            Point2D p0 = controlPoints.get(1);
+            Point2D p1 = controlPoints.get(2);
+            Point2D cp0 = controlPoints.get(0);
+            sub(p1, p0, cp0);
+            sub(p0, cp0, cp0);
 
-        Point2D py = controlPoints.get(controlPoints.size()-3);
-        Point2D pz = controlPoints.get(controlPoints.size()-2);
-        Point2D cpz = controlPoints.get(controlPoints.size()-1);
-        sub(pz, py, cpz);
-        add(pz, cpz, cpz);
+            Point2D py = controlPoints.get(controlPoints.size()-3);
+            Point2D pz = controlPoints.get(controlPoints.size()-2);
+            Point2D cpz = controlPoints.get(controlPoints.size()-1);
+            sub(pz, py, cpz);
+            add(pz, cpz, cpz);
+        }
+        
     }
     
     /**
