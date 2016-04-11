@@ -1,7 +1,7 @@
 /*
  * www.javagl.de - Geom - Geometry utilities
  *
- * Copyright (c) 2013-2015 Marco Hutter - http://www.javagl.de
+ * Copyright (c) 2013-2016 Marco Hutter - http://www.javagl.de
  * 
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,6 +32,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -265,6 +266,112 @@ public class Shapes
             c[i] = c0[i] + (c1[i]-c0[i]) * alpha;
         }
     }
+    
+    /**
+     * Compute all closed regions that occur in the given shape, as
+     * lists of points, each describing one polygon
+     * 
+     * @param shape The shape
+     * @param flatness The flatness for the shape path iterator
+     * @return The regions
+     */
+    static List<List<Point2D>> computeRegions(
+        Shape shape, double flatness)
+    {
+        List<List<Point2D>> regions = new ArrayList<List<Point2D>>();
+        PathIterator pi = shape.getPathIterator(null, flatness);
+        double coords[] = new double[6];
+        List<Point2D> region = Collections.emptyList();
+        while (!pi.isDone())
+        {
+            switch (pi.currentSegment(coords))
+            {
+                case PathIterator.SEG_MOVETO:
+                    region = new ArrayList<Point2D>();
+                    region.add(new Point2D.Double(coords[0], coords[1]));
+                    break;
+                    
+                case PathIterator.SEG_LINETO:
+                    region.add(new Point2D.Double(coords[0], coords[1]));
+                    break;
+                    
+                case PathIterator.SEG_CLOSE:
+                    regions.add(region);
+                    break;
+                    
+                case PathIterator.SEG_CUBICTO:
+                case PathIterator.SEG_QUADTO:
+                default:
+                    throw new AssertionError(
+                        "Invalid segment in flattened path");
+            }
+            pi.next();
+        }
+        return regions;
+    }
+    
+    /**
+     * Computes the (signed) area enclosed by the given point list.
+     * The area will be positive if the points are ordered 
+     * counterclockwise, and and negative if the points are ordered 
+     * clockwise.
+     * 
+     * @param points The points
+     * @return The signed area
+     */
+    static double computeSignedArea(List<? extends Point2D> points)
+    {
+        double sum0 = 0;
+        double sum1 = 0;
+        for (int i=0; i<points.size()-1; i++)
+        {
+            int i0 = i;
+            int i1 = i + 1;
+            Point2D p0 = points.get(i0);
+            Point2D p1 = points.get(i1);
+            double x0 = p0.getX();
+            double y0 = p0.getY();
+            double x1 = p1.getX();
+            double y1 = p1.getY();
+            sum0 += x0 * y1;
+            sum1 += x1 * y0;
+        }
+        Point2D p0 = points.get(0);
+        Point2D pn = points.get(points.size()-1);
+        double x0 = p0.getX();
+        double y0 = p0.getY();
+        double xn = pn.getX();
+        double yn = pn.getY();
+        sum0 += xn * y0;
+        sum1 += x0 * yn;
+        double area = 0.5 * (sum0 - sum1);
+        return area;
+    }
+    
+    /**
+     * Compute the (signed) area that is covered by the given shape.<br>
+     * <br>
+     * The area will be positive for regions where the points are 
+     * ordered counterclockwise, and and negative for regions where 
+     * the points are ordered clockwise.
+     * 
+     * @param shape The shape
+     * @param flatness The flatness for the path iterator
+     * @return The signed area
+     */ 
+    public static double computeSignedArea(Shape shape, double flatness)
+    {
+        double area = 0;
+        List<List<Point2D>> regions = computeRegions(shape, flatness);
+        for (List<Point2D> region : regions)
+        {
+            double signedArea = computeSignedArea(region);
+            System.out.println("got "+signedArea+" for "+region);
+            area += signedArea;
+        }
+        return area;
+    }
+    
     
     /**
      * Private constructor to prevent instantiation
