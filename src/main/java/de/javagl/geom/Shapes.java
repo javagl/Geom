@@ -366,7 +366,7 @@ public class Shapes
         for (List<Point2D> region : regions)
         {
             double signedArea = computeSignedArea(region);
-            System.out.println("got "+signedArea+" for "+region);
+            //System.out.println("got "+signedArea+" for "+region);
             area += signedArea;
         }
         return area;
