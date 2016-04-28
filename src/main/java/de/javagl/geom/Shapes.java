@@ -374,6 +374,149 @@ public class Shapes
     
     
     /**
+     * Computes the length of the given shape (i.e. its border)
+     * 
+     * @param shape The shape
+     * @param flatness The flatness for the iteration
+     * @return The length of the given shape
+     */
+    public static double computeLength(
+        Shape shape, double flatness)
+    {
+        PathIterator pi = shape.getPathIterator(null, flatness);
+        double coords[] = new double[6];
+        double previousMoveX = 0;
+        double previousMoveY = 0;
+        double length = 0;
+        while (!pi.isDone())
+        {
+            switch (pi.currentSegment(coords))
+            {
+                case PathIterator.SEG_MOVETO:
+                    previousMoveX = coords[0];
+                    previousMoveY = coords[1];
+                    break;
+                    
+                case PathIterator.SEG_LINETO:
+                case PathIterator.SEG_CLOSE:
+                {
+                    double dx = coords[0] - previousMoveX;
+                    double dy = coords[1] - previousMoveY;
+                    double distance = Math.sqrt(dx * dx + dy * dy);
+                    length += distance;
+                    break;
+                }
+                    
+                case PathIterator.SEG_CUBICTO:
+                case PathIterator.SEG_QUADTO:
+                default:
+                    throw new AssertionError(
+                        "Invalid segment in flattened path");
+            }
+            pi.next();
+        }
+        return length;
+    }
+    
+    /**
+     * Computes the list of sub-shapes of the given shape. These are the
+     * shapes that are separated in the given shape via SEG_MOVETO or 
+     * SEG_CLOSE operations
+     * 
+     * @param shape The input shape
+     * @return The sub-shapes
+     */
+    public static List<Shape> computeSubShapes(Shape shape)
+    {
+        List<Shape> result = new ArrayList<Shape>();
+        PathIterator pi = shape.getPathIterator(null);
+        double[] coords = new double[6];
+        double previous[] = new double[2];
+        double first[] = new double[2];
+        Path2D currentShape = null;
+        while (!pi.isDone())
+        {
+            int segment = pi.currentSegment(coords);
+            switch (segment)
+            {
+                case PathIterator.SEG_MOVETO:
+                    if (currentShape != null)
+                    {
+                         result.add(currentShape);
+                         currentShape = null;
+                    }
+                    previous[0] = coords[0];
+                    previous[1] = coords[1];
+                    first[0] = coords[0];
+                    first[1] = coords[1];
+                    break;
+
+                case PathIterator.SEG_CLOSE:
+                    if (currentShape != null)
+                    {
+                        currentShape.closePath();
+                        result.add(currentShape);
+                        currentShape = null;
+                    }
+                    previous[0] = first[0];
+                    previous[1] = first[1];
+                    break;
+
+                case PathIterator.SEG_LINETO:
+                    if (currentShape == null)
+                    {
+                        currentShape = new Path2D.Double();
+                        currentShape.moveTo(previous[0], previous[1]);
+                    }
+                    currentShape.lineTo(coords[0], coords[1]);
+                    previous[0] = coords[0];
+                    previous[1] = coords[1];
+                    break;
+
+                case PathIterator.SEG_QUADTO:
+                    if (currentShape == null)
+                    {
+                        currentShape = new Path2D.Double();
+                        currentShape.moveTo(previous[0], previous[1]);
+                    }
+                    currentShape.quadTo(
+                        coords[0], coords[1], 
+                        coords[2], coords[3]);
+                    previous[0] = coords[2];
+                    previous[1] = coords[3];
+                    break;
+
+                case PathIterator.SEG_CUBICTO:
+                    if (currentShape == null)
+                    {
+                        currentShape = new Path2D.Double();
+                        currentShape.moveTo(previous[0], previous[1]);
+                    }
+                    currentShape.curveTo(
+                        coords[0], coords[1], 
+                        coords[2], coords[3],
+                        coords[4], coords[5]);
+                    previous[0] = coords[4];
+                    previous[1] = coords[5];
+                    break;
+
+                default:
+                    // Should never occur
+                    throw new AssertionError(
+                        "Invalid segment in path!");
+            }
+            pi.next();
+        }
+        if (currentShape != null)
+        {
+             result.add(currentShape);
+             currentShape = null;
+        }
+        return result;
+    }
+    
+    
+    /**
      * Private constructor to prevent instantiation
      */
     private Shapes()

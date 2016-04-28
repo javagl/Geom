@@ -37,6 +37,11 @@ Version 0.0.2-SNAPSHOT:
 * Added option to create closed `CatmullRomSpline` instances 
   in response to [Issue 1](https://github.com/javagl/Geom/issues/1) 
 * Added methods to compute the area of shapes in the `Shapes` class
+* Added `PathIterators` class, which offers a path iterator that
+  limits the distance between consecutive points
+* Added method for computing sub-shapes in the `Shapes` class
+* Added method for computing the (border) length of shapes in 
+  the `Shapes` class
      
 Version 0.0.1, 2015-06-22:
 
