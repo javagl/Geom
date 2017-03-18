@@ -57,19 +57,24 @@ public class ConvexHull
         }
         List<Point2D> points = new ArrayList<Point2D>(inputPoints);
         
-        // Compute the reference point and sort the points
-        // by the angle that the line from the reference point 
-        // to the point has to the x-axis
+        // Compute the reference point, using a YX_COMPARATOR: It sorts points 
+        // by their y-coordinate. If two points have the same y-coordinate, 
+        // it sorts them by the x-coordinate.
         Point2D referencePoint = Collections.min(points, Points.YX_COMPARATOR);
-        Comparator<Point2D> comparator = 
+
+        // Sort the points. The primary sorting criterion is the angle that
+        // the line from the reference point to the point has to the x-axis. 
+        // The secondary sorting criterion will be the YX_COMPARATOR.
+        Comparator<Point2D> byAngleComparator = 
             Points.byAngleComparator(referencePoint);
+        Comparator<Point2D> comparator = 
+            composeComparators(byAngleComparator, Points.YX_COMPARATOR);
         Collections.sort(points, comparator);
         
         List<Point2D> newPoints = makeAnglesUnique(points);
         List<Point2D> result = scan(newPoints);
         return result;
     }
-    
     
     /**
      * Perform the actual Graham Scan on the given points
@@ -133,7 +138,6 @@ public class ConvexHull
         {
             Point2D p = points.get(i);
             double angle = Lines.angleToX(referencePoint, p);
-            //System.out.println("Angle is "+Math.toDegrees(angle)+" for "+p);
             if (Math.abs(angle - previousAngle) > Geom.DOUBLE_EPSILON)
             {
                 newPoints.add(p);
@@ -150,6 +154,39 @@ public class ConvexHull
             previousDistanceSquared = referencePoint.distanceSq(p);
         }
         return newPoints;
+    }
+    
+    
+    /**
+     * Creates a comparator that combines the given comparators. They are
+     * applied in the given order, and if any of them returns a 
+     * non-<code>0</code> result for a pair of values, then
+     * this result is returned. Otherwise, the comparator returns 
+     * <code>0</code>.
+     *  
+     * @param comparators The delegate comparators
+     * @return The composed comparator
+     */
+    @SafeVarargs
+    private static <T> Comparator<T> composeComparators(
+        Comparator<? super T> ... comparators)
+    {
+        return new Comparator<T>()
+        {
+            @Override
+            public int compare(T t0, T t1)
+            {
+                for (Comparator<? super T> comparator : comparators)
+                {
+                    int result = comparator.compare(t0, t1);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                }
+                return 0;
+            }
+        };
     }
     
     /**

@@ -3,9 +3,11 @@ package de.javagl.geom;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -46,13 +48,16 @@ public class ConvexHullTest
 }
 
 @SuppressWarnings({"javadoc", "serial"})
-class ConvexHullTestPanel extends JPanel implements MouseListener
+class ConvexHullTestPanel extends JPanel 
+    implements MouseListener, MouseMotionListener
 {
     private List<Point2D> points = new ArrayList<Point2D>();
+    private Point2D draggedPoint = null;
 
     ConvexHullTestPanel()
     {
         addMouseListener(this);
+        addMouseMotionListener(this);
 
         points.add(new Point2D.Double(100, 100));
         points.add(new Point2D.Double(200, 100));
@@ -67,9 +72,13 @@ class ConvexHullTestPanel extends JPanel implements MouseListener
     @Override
     protected void paintComponent(Graphics gr)
     {
-
         super.paintComponent(gr);
         Graphics2D g = (Graphics2D) gr;
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setRenderingHint(
+            RenderingHints.KEY_ANTIALIASING,  
+            RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(Color.BLACK);
         for (Point2D p : points)
@@ -82,6 +91,22 @@ class ConvexHullTestPanel extends JPanel implements MouseListener
 
     }
 
+    @Override
+    public void mouseDragged(MouseEvent e)
+    {
+        if (draggedPoint != null)
+        {
+            draggedPoint.setLocation(e.getPoint());
+            repaint();
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+        // Nothing to do here
+    }
+    
     @Override
     public void mouseClicked(MouseEvent e)
     {
@@ -99,13 +124,24 @@ class ConvexHullTestPanel extends JPanel implements MouseListener
     @Override
     public void mousePressed(MouseEvent e)
     {
-        // Nothing to do here
+        draggedPoint = null;
+        double thresholdSquared = 10*10;
+        double minDs = Double.MAX_VALUE;
+        for (Point2D point : points)
+        {
+            double ds = point.distanceSq(e.getPoint());
+            if (ds < thresholdSquared && ds < minDs)
+            {
+                minDs = ds;
+                draggedPoint = point;
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e)
     {
-        // Nothing to do here
+        draggedPoint = null;
     }
 
     @Override
