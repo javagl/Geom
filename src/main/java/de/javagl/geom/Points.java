@@ -398,6 +398,34 @@ public class Points
         }
         return new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
     }
+    
+    /**
+     * Computes the center of gravity of the given sequence of points. This
+     * is simply the average of all points. If the given sequence is empty,
+     * then <code>null</code> is returned.
+     * 
+     * @param points The points
+     * @return The center of gravity
+     */
+    public static Point2D computeCenterOfGravity(
+        Iterable<? extends Point2D> points)
+    {
+        int counter = 0;
+        double sumX = 0.0;
+        double sumY = 0.0;
+        for (Point2D point : points)
+        {
+            sumX += point.getX();
+            sumY += point.getY();
+            counter++;
+        }
+        if (counter == 0)
+        {
+            return null;
+        }
+        return new Point2D.Double(sumX / counter, sumY / counter);
+    }
+    
 
     /**
      * Creates a short string representation of the given point
@@ -438,6 +466,7 @@ public class Points
         String sy = String.format(format, point.getY());
         return "("+sx+","+sy+")";
     }
+    
     
     /**
      * Private constructor to prevent instantiation
