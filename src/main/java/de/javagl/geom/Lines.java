@@ -198,11 +198,48 @@ public class Lines
      * 
      * @param line0 The first line
      * @param line1 The second line
-     * @return The angle, in radians, that the line has to the x-axis
+     * @return The angle, in radians, between the given lines
      */
     public static double angle(Line2D line0, Line2D line1)
     {
-        return angleToX(line1) - angleToX(line0);
+        return clampAngle(angleToX(line1) - angleToX(line0));
+    }
+    
+    /**
+     * Computes the angle, in radians, between the given lines
+     * 
+     * @param s0 The start point of the first line
+     * @param e0 The end point of the first line 
+     * @param s1 The start point of the second line
+     * @param e1 The end point of the second line
+     * @return The angle, in radians, between the given lines
+     */
+    public static double angle(
+        Point2D s0, Point2D e0, Point2D s1, Point2D e1)
+    {
+        return clampAngle(angleToX(s1, e1) - angleToX(s0, e0));
+    }
+    
+    /**
+     * Computes the angle, in radians, between the given lines
+     * 
+     * @param sx0 The x-coordinate of the start point of the first line 
+     * @param sy0 The y-coordinate of the start point of the first line
+     * @param ex0 The x-coordinate of the end point of the first line
+     * @param ey0 The y-coordinate of the end point of the first line
+     * @param sx1 The x-coordinate of the start point of the second line
+     * @param sy1 The y-coordinate of the start point of the second line
+     * @param ex1 The x-coordinate of the end point of the second line
+     * @param ey1 The y-coordinate of the end point of the second line
+     * @return The angle, in radians, between the given lines
+     */
+    public static double angle(
+        double sx0, double sy0, double ex0, double ey0,
+        double sx1, double sy1, double ex1, double ey1)
+    {
+        return clampAngle(
+            angleToX(sx1, sy1, ex1, ey1) - 
+            angleToX(sx0, sy0, ex0, ey0));
     }
     
     /**
@@ -229,7 +266,7 @@ public class Lines
      * @return The angle, in radians, that the line has to the x-axis
      */
     public static double angleToX(
-           Point2D p0, Point2D p1)
+        Point2D p0, Point2D p1)
     {
         return angleToX(
             p0.getX(), p0.getY(), 
@@ -247,13 +284,33 @@ public class Lines
      * @return The angle, in radians, that the line has to the x-axis
      */
     public static double angleToX(
-           double x0, double y0, double x1, double y1)
+        double x0, double y0, double x1, double y1)
     {
         double dx = x1 - x0;
         double dy = y1 - y0;
         double angleRad = Math.atan2(dy, dx); 
         return angleRad;
     }
+
+    /**
+     * Clamp the given angle, which is given in radians, and assumed to
+     * be in the range [-2PI...2PI], to the range [-PI...PI].
+     *  
+     * @param angle The angle
+     * @return The clamped angle
+     */
+    private static double clampAngle(double angle)
+    {
+        if (angle < -Math.PI)
+        {
+            return angle + Math.PI + Math.PI;
+        }
+        if (angle > Math.PI)
+        {
+            return angle - Math.PI - Math.PI;
+        }
+        return angle;
+    }    
     
     /**
      * Creates a simple string representation of the given line
