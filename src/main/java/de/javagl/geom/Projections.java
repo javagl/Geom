@@ -99,7 +99,7 @@ public class Projections
     {
         double dx = x1 - x0;
         double dy = y1 - y0;
-        double invLength = 1.0 / Math.sqrt(dx*dx+dy*dy);
+        double invLength = 1.0 / Math.sqrt(dx * dx + dy * dy);
         double dirX = dx * invLength;
         double dirY = dy * invLength;
         double pdx = x - x0;
@@ -115,36 +115,36 @@ public class Projections
         return result;
     }
 
-//    /**
-//     * Computes the relative location of the projection of the point (x,y)
-//     * on the line (x0,y0)-(x1,y1). It will be the <i>relative</i> location,
-//     * meaning that if the projection is at (x0,y0), then the result will
-//     * be 0.0, and if the projection is at (x1,y1), then the result will
-//     * be 1.0.
-//     * 
-//     * @param x0 The x-coordinate of the start point of the line
-//     * @param y0 The y-coordinate of the start point of the line
-//     * @param x1 The x-coordinate of the end point of the line
-//     * @param y1 The y-coordinate of the end point of the line
-//     * @param x The x-coordinate of the point to drop from
-//     * @param y The y-coordinate of the point to drop from
-//     * @return The relative projection location
-//     */
-//    public static double computeRelativeProjectionLocation(
-//        double x0, double y0, 
-//        double x1, double y1,
-//        double x, double y)
-//    {
-//        double dx = x1 - x0;
-//        double dy = y1 - y0;
-//        double invLength = 1.0 / Math.sqrt(dx*dx+dy*dy);
-//        double dirX = dx * invLength;
-//        double dirY = dy * invLength;
-//        double pdx = x - x0;
-//        double pdy = y - y0;
-//        double dot = dirX * pdx + dirY * pdy;
-//        return dot;
-//    }
+    /**
+     * Computes the relative location of the projection of the point (x,y)
+     * on the line (x0,y0)-(x1,y1). It will be the <i>relative</i> location,
+     * meaning that if the projection is at (x0,y0), then the result will
+     * be 0.0, and if the projection is at (x1,y1), then the result will
+     * be 1.0.
+     * 
+     * @param x0 The x-coordinate of the start point of the line
+     * @param y0 The y-coordinate of the start point of the line
+     * @param x1 The x-coordinate of the end point of the line
+     * @param y1 The y-coordinate of the end point of the line
+     * @param x The x-coordinate of the point to drop from
+     * @param y The y-coordinate of the point to drop from
+     * @return The relative projection location
+     */
+    public static double computeRelativeProjectionLocation(
+        double x0, double y0, 
+        double x1, double y1,
+        double x, double y)
+    {
+        double dx = x1 - x0;
+        double dy = y1 - y0;
+        double invLength = 1.0 / Math.sqrt(dx * dx + dy * dy);
+        double dirX = dx * invLength;
+        double dirY = dy * invLength;
+        double pdx = x - x0;
+        double pdy = y - y0;
+        double dot = dirX * pdx + dirY * pdy;
+        return dot * invLength;
+    }
     
 
     /**
