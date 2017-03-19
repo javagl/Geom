@@ -194,7 +194,8 @@ public class Lines
 
     
     /**
-     * Computes the angle, in radians, between the given lines
+     * Computes the angle, in radians, between the given lines, as a value
+     * between 0 and 2PI.
      * 
      * @param line0 The first line
      * @param line1 The second line
@@ -202,11 +203,12 @@ public class Lines
      */
     public static double angle(Line2D line0, Line2D line1)
     {
-        return clampAngle(angleToX(line1) - angleToX(line0));
+        return normalizeAngle(angleToX(line1) - angleToX(line0));
     }
     
     /**
-     * Computes the angle, in radians, between the given lines
+     * Computes the angle, in radians, between the given lines, as a value
+     * between 0 and 2PI.
      * 
      * @param s0 The start point of the first line
      * @param e0 The end point of the first line 
@@ -217,11 +219,12 @@ public class Lines
     public static double angle(
         Point2D s0, Point2D e0, Point2D s1, Point2D e1)
     {
-        return clampAngle(angleToX(s1, e1) - angleToX(s0, e0));
+        return normalizeAngle(angleToX(s1, e1) - angleToX(s0, e0));
     }
     
     /**
-     * Computes the angle, in radians, between the given lines
+     * Computes the angle, in radians, between the given lines, as a value
+     * between 0 and 2PI.
      * 
      * @param sx0 The x-coordinate of the start point of the first line 
      * @param sy0 The y-coordinate of the start point of the first line
@@ -237,7 +240,7 @@ public class Lines
         double sx0, double sy0, double ex0, double ey0,
         double sx1, double sy1, double ex1, double ey1)
     {
-        return clampAngle(
+        return normalizeAngle(
             angleToX(sx1, sy1, ex1, ey1) - 
             angleToX(sx0, sy0, ex0, ey0));
     }
@@ -292,25 +295,40 @@ public class Lines
         return angleRad;
     }
 
+//    /**
+//     * Clamp the given angle, which is given in radians, to the 
+//     * range [-PI...PI].
+//     *  
+//     * @param angle The angle
+//     * @return The clamped angle
+//     */
+//    private static double clampAngle(double angle)
+//    {
+//        double a = angle % (Math.PI + Math.PI);
+//        if (a < -Math.PI)
+//        {
+//            a += (Math.PI + Math.PI);
+//        }
+//        else if (a > Math.PI)
+//        {
+//            a -= (Math.PI + Math.PI);
+//        }
+//        return a;
+//    }
+    
     /**
-     * Clamp the given angle, which is given in radians, and assumed to
-     * be in the range [-2PI...2PI], to the range [-PI...PI].
-     *  
+     * Normalize the given angle, which is given in radians, to the 
+     * range [0, 2PI]
+     * 
      * @param angle The angle
-     * @return The clamped angle
+     * @return The normalized angle
      */
-    private static double clampAngle(double angle)
+    static double normalizeAngle(double angle)
     {
-        if (angle < -Math.PI)
-        {
-            return angle + Math.PI + Math.PI;
-        }
-        if (angle > Math.PI)
-        {
-            return angle - Math.PI - Math.PI;
-        }
-        return angle;
-    }    
+        return (angle + Math.PI + Math.PI) % (Math.PI + Math.PI);        
+    }
+
+    
     
     /**
      * Creates a simple string representation of the given line

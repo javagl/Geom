@@ -27,6 +27,7 @@
 package de.javagl.geom;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -125,18 +126,20 @@ public class Points
      * @return The comparator
      */
     public static Comparator<Point2D> byAngleComparator(
-        final double centerX, final double centerY)
+        double centerX, double centerY)
     {
         return new Comparator<Point2D>()
         {
             @Override
             public int compare(Point2D p0, Point2D p1)
             {
-                double angle0 = Lines.angleToX(
-                    centerX, centerY, p0.getX(), p0.getY());
-                double angle1 = Lines.angleToX(
-                    centerX, centerY, p1.getX(), p1.getY());
-                //System.out.println("Angle "+angle0+" and "+angle1);
+                double angle0 = Lines.normalizeAngle(Lines.angleToX(
+                    centerX, centerY, p0.getX(), p0.getY()));
+                double angle1 = Lines.normalizeAngle(Lines.angleToX(
+                    centerX, centerY, p1.getX(), p1.getY()));
+                //System.out.println("Angle " 
+                //    + Math.toDegrees(angle0) + " and "
+                //    + Math.toDegrees(angle1));
                 return Double.compare(angle0, angle1);
             }
         };
@@ -151,8 +154,8 @@ public class Points
      * @param y The y-coordinate of the reference point
      * @return The comparator
      */
-    static Comparator<Point2D> byDistanceComparator(
-        final double x, final double y)
+    public static Comparator<Point2D> byDistanceComparator(
+        double x, double y)
     {
         return new Comparator<Point2D>()
         {
@@ -177,7 +180,7 @@ public class Points
      * @param reference The reference point
      * @return The comparator
      */
-    static Comparator<Point2D> byDistanceComparator(Point2D reference)
+    public static Comparator<Point2D> byDistanceComparator(Point2D reference)
     {
         return byDistanceComparator(reference.getX(), reference.getY());
     }
@@ -188,10 +191,69 @@ public class Points
      * 
      * @return The comparator
      */
-    static Comparator<Point2D> byDistanceToOriginComparator()
+    public static Comparator<Point2D> byDistanceToOriginComparator()
     {
         return byDistanceComparator(0, 0);
     }
+    
+
+    /**
+     * Returns a comparator that compares points by their distance to
+     * the specified line
+     * 
+     * @param line The line
+     * @return The comparator
+     */
+    public static Comparator<Point2D> byDistanceToLineComparator(
+        Line2D line)
+    {
+        return byDistanceToLineComparator(
+            line.getX1(), line.getY1(), line.getX2(), line.getY2());
+    }
+
+
+    /**
+     * Returns a comparator that compares points by their distance to
+     * the specified line
+     * 
+     * @param p0 The start point of the line
+     * @param p1 The end point of the line
+     * @return The comparator
+     */
+    public static Comparator<Point2D> byDistanceToLineComparator(
+        Point2D p0, Point2D p1)
+    {
+        return byDistanceToLineComparator(
+            p0.getX(), p0.getY(), p1.getX(), p1.getY());
+    }
+    
+    /**
+     * Returns a comparator that compares points by their distance to
+     * the specified line
+     * 
+     * @param x0 The x-coordinate of the start point of the line
+     * @param y0 The y-coordinate of the start point of the line
+     * @param x1 The x-coordinate of the end point of the line
+     * @param y1 The y-coordinate of the end point of the line
+     * @return The comparator
+     */
+    public static Comparator<Point2D> byDistanceToLineComparator(
+        double x0, double y0, double x1, double y1)
+    {
+        return new Comparator<Point2D>()
+        {
+            @Override
+            public int compare(Point2D p0, Point2D p1)
+            {
+                double d0 = Line2D.ptLineDistSq(
+                    x0, y0, x1, y1, p0.getX(), p0.getY());
+                double d1 = Line2D.ptLineDistSq(
+                    x0, y0, x1, y1, p1.getX(), p1.getY());
+                return Double.compare(d0, d1);
+            }
+        };
+    }
+    
     
     
     /**
