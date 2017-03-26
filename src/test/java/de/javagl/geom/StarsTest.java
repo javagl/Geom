@@ -50,6 +50,9 @@ class StarsTestPanel extends JPanel
     private int numRays;
     private double innerRadius;
     private double outerRadius;
+    private double startAngleRad;
+    private double innerRoundness;
+    private double outerRoundness;
     
     public StarsTestPanel()
     {
@@ -68,6 +71,18 @@ class StarsTestPanel extends JPanel
         JSlider outerRadiusSlider = new JSlider(0, 100, 0);
         p.add(outerRadiusSlider);
         
+        p.add(new JLabel("Start angle:"));
+        JSlider startAngleSlider = new JSlider(0, 100, 0);
+        p.add(startAngleSlider);
+        
+        p.add(new JLabel("Inner roundness:"));
+        JSlider innerRoundnessSlider = new JSlider(0, 100, 0);
+        p.add(innerRoundnessSlider);
+        
+        p.add(new JLabel("Outer roundness:"));
+        JSlider outerRoundnessSlider = new JSlider(0, 100, 0);
+        p.add(outerRoundnessSlider);
+        
         add(p);
         
         ChangeListener changeListener = e ->
@@ -75,11 +90,17 @@ class StarsTestPanel extends JPanel
             numRays = numRaysSlider.getValue();
             innerRadius = (innerRadiusSlider.getValue() / 100.0) * 300.0;
             outerRadius = (outerRadiusSlider.getValue() / 100.0) * 300.0;
+            startAngleRad = (startAngleSlider.getValue() / 100.0) * Math.PI * 2;
+            innerRoundness = (innerRoundnessSlider.getValue() / 100.0);
+            outerRoundness = (outerRoundnessSlider.getValue() / 100.0);
             repaint();
         };
         numRaysSlider.addChangeListener(changeListener);
         innerRadiusSlider.addChangeListener(changeListener);
         outerRadiusSlider.addChangeListener(changeListener);
+        startAngleSlider.addChangeListener(changeListener);
+        innerRoundnessSlider.addChangeListener(changeListener);
+        outerRoundnessSlider.addChangeListener(changeListener);
         
         numRaysSlider.setValue(5);
         innerRadiusSlider.setValue(25);
@@ -99,6 +120,7 @@ class StarsTestPanel extends JPanel
 
         g.setColor(Color.BLACK);
         g.draw(Stars.createStarShape(
-            400.0, 400.0, innerRadius, outerRadius, numRays, 0.0));
+            400.0, 400.0, innerRadius, outerRadius, numRays, 
+            startAngleRad, innerRoundness, outerRoundness));
     }
 }
