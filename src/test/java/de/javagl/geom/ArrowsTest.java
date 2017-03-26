@@ -96,6 +96,8 @@ class ArrowsTestPanel extends JPanel
         ArrowCreator arrowCreator = Arrows.create();
         //arrowCreator.setAbsoluteHeadWidth(40);
         //arrowCreator.setRelativeHeadLength(0.1, 3, 20);
+        arrowCreator.setAbsoluteHeadLength(75);
+        arrowCreator.setAbsoluteHeadWidth(55);
         //g.draw(arrowCreator.setAbsoluteHeadWidth(48).buildShape(x0, y0, x1, y1, 24.0));
         
         //g.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
