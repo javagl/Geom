@@ -404,7 +404,8 @@ public class AffineTransforms
 
     /**
      * Creates a new rectangle that is transformed with the given transform,
-     * which is assumed to only contain a scale and translation
+     * which is assumed to only contain a scale (including flips) and 
+     * translation
      * 
      * @param at The affine transform
      * @param r The rectangle
@@ -413,11 +414,16 @@ public class AffineTransforms
     private static Rectangle2D createScaledAndTranslated(
         AffineTransform at, Rectangle2D r)
     {
-        Rectangle2D result = new Rectangle2D.Double(
-            r.getX() * at.getScaleX() + at.getTranslateX(), 
-            r.getY() * at.getScaleY() + at.getTranslateY(),
-            r.getWidth() * at.getScaleX(), 
-            r.getHeight() * at.getScaleY());
+        double x0 = r.getX() * at.getScaleX() + at.getTranslateX();
+        double y0 = r.getY() * at.getScaleY() + at.getTranslateY();
+        double x1 = x0 + r.getWidth() * at.getScaleX();
+        double y1 = y0 + r.getHeight() * at.getScaleY();
+        double minX = Math.min(x0, x1);
+        double minY = Math.min(y0, y1);
+        double maxX = Math.max(x0, x1);
+        double maxY = Math.max(y0, y1);
+        Rectangle2D result =
+            new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
         return result;
     }
     
@@ -481,7 +487,8 @@ public class AffineTransforms
     
     
     /**
-     * Returns whether the given affine transform has a scale component
+     * Returns whether the given affine transform has a scale component.
+     * This includes flipping (i.e. scaling about -1.0 in x- or y-direction).
      * 
      * @param at The affine transform
      * @return Whether the transform has a scale component
@@ -495,7 +502,57 @@ public class AffineTransforms
         }
         return 
             (((type & AffineTransform.TYPE_UNIFORM_SCALE ) != 0) ||
-             ((type & AffineTransform.TYPE_GENERAL_SCALE ) != 0));
+             ((type & AffineTransform.TYPE_GENERAL_SCALE ) != 0) ||
+             ((type & AffineTransform.TYPE_FLIP          ) != 0));
+    }
+    
+    /**
+     * Sets the given result to be an affine transform that transforms the 
+     * unit square into the given rectangle. If the given result is 
+     * <code>null</code>, then a new transform will be created and returned.
+     * 
+     * @param rectangle The rectangle
+     * @param result The result
+     * @return The result
+     */
+    public static AffineTransform getScaleInstance(
+        Rectangle2D rectangle, AffineTransform result)
+    {
+        return getScaleInstance(
+            rectangle.getMinX(), 
+            rectangle.getMinY(), 
+            rectangle.getMaxX(), 
+            rectangle.getMaxY(), 
+            result);
+    }
+    
+    /**
+     * Sets the given result to be an affine transform that transforms the 
+     * unit square into the given rectangle. If the given result is 
+     * <code>null</code>, then a new transform will be created and returned.
+     * 
+     * @param minX The minimum x-coordinate
+     * @param minY The minimum y-coordinate
+     * @param maxX The maximum x-coordinate
+     * @param maxY The maximum y-coordinate
+     * @param result The result
+     * @return The result
+     */
+    public static AffineTransform getScaleInstance(
+        double minX, double minY, double maxX, double maxY, 
+        AffineTransform result)
+    {
+        AffineTransform localResult = result;
+        if (result == null)
+        {
+            localResult = AffineTransform.getTranslateInstance(minX, minY);
+        }
+        else
+        {
+            localResult.setToTranslation(minX, minY);
+        }
+        localResult.scale(maxX - minX, maxY - minY);
+        return localResult;
     }
     
     
