@@ -184,8 +184,8 @@ public class CatmullRomSpline
     /**
      * Set the position of the specified control point
      * 
-     * @param index
-     * @param point
+     * @param index The index of the point
+     * @param point The position that the control point will have afterwards
      */
     void updateControlPoint(int index, Point2D point)
     {
