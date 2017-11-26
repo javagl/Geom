@@ -34,6 +34,9 @@ similar (and possibly extended) form.
 
 Version 0.0.2-SNAPSHOT:
 
+* Bugfix in the `AffineTransforms` class to handle negative scales
+  when transforming rectangles
+* Added the `Stars` class which allows creating star shapes 
 * Added option to create closed `CatmullRomSpline` instances 
   in response to [Issue 1](https://github.com/javagl/Geom/issues/1) 
 * Added methods to compute the area of shapes in the `Shapes` class
